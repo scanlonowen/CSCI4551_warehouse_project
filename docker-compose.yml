@@ -1,0 +1,16 @@
+services:
+  ros2:
+    build: .
+    container_name: ros2_warehouse
+    ports:
+      - "6080:6080"   # noVNC (browser)
+      - "5900:5900"   # VNC (native client)
+    volumes:
+      - ./src:/home/rosuser/ws/src
+    environment:
+      - DISPLAY=:1
+      - ROS_DOMAIN_ID=0
+      - GZ_VERSION=harmonic
+    shm_size: "512m"
+    stdin_open: true
+    tty: true
