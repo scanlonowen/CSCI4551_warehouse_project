@@ -104,7 +104,26 @@ Jazzy's `diff_drive_controller` only accepts `geometry_msgs/TwistStamped`, but t
 
 **Goal:** Drive the warehouse and produce a saved occupancy grid.
 
-Four terminals (keep T1/T2 from Stage 1 running):
+### Quick path: `./build_map.sh`
+
+From the workspace root:
+
+```bash
+cd ~/warehouse_ws
+./build_map.sh                     # saves as maps/warehouse.{yaml,pgm,...}
+# or: ./build_map.sh my_map_name
+# or: NO_TELEOP=1 ./build_map.sh   # drive yourself from another terminal
+```
+
+The script launches Gazebo + SLAM + RViz + keyboard teleop, waits for you to
+drive the warehouse (change RViz's Fixed Frame to `map` to watch the grid
+grow), and when you press **ENTER** in the script's terminal it verifies
+`/map` is publishing, saves via the `slam_toolbox` service, and rebuilds the
+workspace so `install/` picks up the new map. Ctrl-C aborts without saving.
+
+### Manual path (four terminals)
+
+Keep T1/T2 from Stage 1 running:
 
 ```bash
 # T1 — sim (already running from Stage 1)
@@ -218,6 +237,7 @@ warehouse_ws/
 │       ├── worlds/        # small_warehouse.world, no_roof_small_warehouse.world (SDF 1.9)
 │       ├── models/        # shelves, pallets, walls, clutter
 │       └── launch/        # world-only launch files
+├── build_map.sh           # one-shot Stage 2: sim + SLAM + save + rebuild
 ├── Dockerfile             # optional Docker setup for macOS dev
 └── docker-compose.yml
 ```
