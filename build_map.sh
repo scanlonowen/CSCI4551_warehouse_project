@@ -27,10 +27,13 @@ if [[ ! -f "$WS/install/setup.bash" ]]; then
     exit 1
 fi
 
+# ROS setup scripts reference unset vars, so disable -u while sourcing them.
+set +u
 # shellcheck source=/dev/null
 source /opt/ros/jazzy/setup.bash
 # shellcheck source=/dev/null
 source "$WS/install/setup.bash"
+set -u
 
 mkdir -p "$MAP_DIR"
 
