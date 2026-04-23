@@ -141,37 +141,64 @@ colcon build --symlink-install --packages-select warehouse_robot_bringup
 
 ---
 
-## Stage 3 — Localize and navigate (planned)
+## Stage 3 — Localize on the saved map and navigate
 
-**Goal:** Launch stack, set initial pose in RViz, click a Nav2 goal, forklift plans and reaches it.
+**Goal:** Launch the stack, set an initial pose in RViz, click a Nav2 goal, forklift plans and reaches it.
 
-Planned artifacts (not yet in the repo):
-- `config/nav2_params.yaml` — AMCL + costmaps + controller tuned to the forklift.
-- `launch/navigation.launch.py` — includes the Gazebo sim + `nav2_bringup/bringup_launch.py` with the saved map.
+**Prerequisite:** `src/warehouse_robot_bringup/maps/warehouse.yaml` must exist (from Stage 2). If it doesn't, AMCL has nothing to localize against.
 
-Run (once implemented):
+One terminal:
+
 ```bash
 ros2 launch warehouse_robot_bringup navigation.launch.py
-# In RViz: "2D Pose Estimate" near the real pose, then "Nav2 Goal" to click goals.
 ```
 
-**Pass:** 3–5 goals across the warehouse reached autonomously; AMCL particle cloud converges; no costmap frame errors.
+This starts Gazebo + forklift + controllers + sensor bridges + RViz + the full Nav2 stack (map_server, AMCL, planner, controller, bt_navigator, behaviors).
+
+In RViz:
+1. **2D Pose Estimate** button → click near the forklift's real pose in the map. AMCL's particle cloud should converge to a tight cluster within a few seconds.
+2. **Nav2 Goal** button → click a goal pose anywhere reachable. The robot plans a green path and drives to it.
+
+**Pass criteria:**
+- AMCL particle cloud converges after the 2D Pose Estimate.
+- 3–5 consecutive goals across the warehouse are reached without collisions.
+- No costmap frame or TF timeout errors in the terminal.
+
+Tunables if the robot is sluggish or swerves: `config/nav2_params.yaml` — `controller_server.FollowPath.desired_linear_vel`, `lookahead_dist`, and `local_costmap.inflation_layer.inflation_radius`.
 
 ---
 
-## Stage 4 — Autonomous waypoint tour (planned)
+## Stage 4 — Autonomous waypoint tour
 
-**Goal:** A single ROS 2 node drives the forklift through named waypoints (`loading_zone`, `aisle_1`, `aisle_2`, `drop_zone`) with no human clicks.
+**Goal:** A ROS 2 node drives the forklift through named waypoints (`loading_zone`, `aisle_1`, `aisle_2`, `drop_zone`) with no clicks.
 
-Planned artifacts:
-- `config/waypoints.yaml` — named poses in the `map` frame.
-- `scripts/waypoint_follower.py` — uses `nav2_simple_commander.BasicNavigator.followWaypoints()`.
-- `launch/waypoint_tour.launch.py` — Stage-3 navigation + the waypoint node, with `route` and `loop` params.
+### Capture real waypoint coordinates
 
-Run (once implemented):
+The defaults in `config/waypoints.yaml` are placeholders. Replace them with coordinates measured in your saved map:
+
+1. Launch Stage 3 (`navigation.launch.py`) and set the initial pose.
+2. Drive the robot (teleop or Nav2 Goal) to each named location.
+3. Read the pose:
+   ```bash
+   ros2 topic echo --once /amcl_pose
+   ```
+4. Copy `pose.pose.position.x` and `y` into the entry. Compute yaw as `2 * atan2(orientation.z, orientation.w)`.
+5. Rebuild:
+   ```bash
+   colcon build --symlink-install --packages-select warehouse_robot_bringup
+   ```
+
+### Run the tour
+
 ```bash
 ros2 launch warehouse_robot_bringup waypoint_tour.launch.py
 ```
+
+This launches everything from Stage 3 and, after a 10-second delay (to let AMCL come up), the `waypoint_follower` node. **You still need to click 2D Pose Estimate** in RViz before the delay expires, so AMCL converges before the tour starts.
+
+The terminal logs each waypoint as the robot heads to it. `config/waypoints.yaml.route` controls the order; edit it and rebuild to reorder.
+
+**Pass criteria:** Robot visits every waypoint in order and prints `Tour complete — all waypoints reached.`
 
 ---
 
@@ -182,10 +209,10 @@ warehouse_ws/
 ├── src/
 │   ├── warehouse_robot_bringup/
 │   │   ├── urdf/          # forklift.urdf.xacro + sensors + ros2_control
-│   │   ├── config/        # forklift_controllers.yaml, slam_toolbox_async.yaml
-│   │   ├── launch/        # warehouse_simulation, view_robot, teleop, slam
+│   │   ├── config/        # forklift_controllers / slam_toolbox / nav2_params / waypoints
+│   │   ├── launch/        # warehouse_simulation, view_robot, teleop, slam, navigation, waypoint_tour
 │   │   ├── rviz/          # forklift.rviz (RobotModel + TF + Scan + Odom + Map)
-│   │   ├── scripts/       # twist_to_stamped.py (Twist → TwistStamped relay)
+│   │   ├── scripts/       # twist_to_stamped.py + waypoint_follower.py
 │   │   └── maps/          # slam_toolbox output lands here
 │   └── aws-robomaker-small-warehouse-world/
 │       ├── worlds/        # small_warehouse.world, no_roof_small_warehouse.world (SDF 1.9)

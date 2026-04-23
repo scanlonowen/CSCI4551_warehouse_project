@@ -31,6 +31,9 @@
   <depend>navigation2</depend>
   <depend>nav2_bringup</depend>
   <depend>slam_toolbox</depend>
+  <exec_depend>nav2_simple_commander</exec_depend>
+  <exec_depend>teleop_twist_keyboard</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
 
   <!-- Warehouse world -->
   <depend>aws_robomaker_small_warehouse_world</depend>

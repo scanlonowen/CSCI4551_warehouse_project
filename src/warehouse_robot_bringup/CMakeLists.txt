@@ -20,4 +20,10 @@ install(PROGRAMS
   DESTINATION share/${PROJECT_NAME}/scripts
 )
 
+# Install ros2-runnable scripts to lib/ so `ros2 run <pkg> <script>.py` works.
+install(PROGRAMS
+  scripts/waypoint_follower.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
