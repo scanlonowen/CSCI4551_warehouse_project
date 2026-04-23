@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>warehouse_robot_bringup</name>
+  <version>0.1.0</version>
+  <description>Forklift robot bringup for warehouse simulation (Gazebo Harmonic + ROS2 Jazzy)</description>
+  <maintainer email="reish036@umn.edu">Will Reishus</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- Robot model -->
+  <depend>xacro</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>joint_state_publisher</depend>
+
+  <!-- Gazebo Harmonic -->
+  <depend>ros_gz_sim</depend>
+  <depend>ros_gz_bridge</depend>
+
+  <!-- ros2_control -->
+  <depend>gz_ros2_control</depend>
+  <depend>ros2_control</depend>
+  <depend>ros2_controllers</depend>
+  <depend>diff_drive_controller</depend>
+  <depend>joint_state_broadcaster</depend>
+  <depend>position_controllers</depend>
+  <depend>controller_manager</depend>
+
+  <!-- Navigation -->
+  <depend>navigation2</depend>
+  <depend>nav2_bringup</depend>
+  <depend>slam_toolbox</depend>
+
+  <!-- Warehouse world -->
+  <depend>aws_robomaker_small_warehouse_world</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
