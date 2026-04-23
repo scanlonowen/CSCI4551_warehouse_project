@@ -167,7 +167,10 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: odom
+    # Default is 'map' so Stages 2–4 (SLAM / Nav2) work out of the box.
+    # For bare Stage 1 (no SLAM running), manually switch to 'odom' in the
+    # Global Options panel or there will be no TF chain to render against.
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
