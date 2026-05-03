@@ -1,38 +1,33 @@
 <?xml version="1.0"?>
-<!-- ros2_control hardware interface for Gazebo Harmonic (gz-sim).
-     Uses gz_ros2_control instead of gazebo_ros2_control.
-     Controls: diff drive wheels + fork prismatic joint. -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <ros2_control name="GzSimSystem" type="system">
+    <ros2_control name="GazeboSimSystem" type="system">
         <hardware>
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
         </hardware>
-
-        <!-- Drive wheels (velocity-controlled via DiffDriveController) -->
-        <joint name="right_wheel_joint">
-            <command_interface name="velocity"/>
-            <state_interface name="velocity"/>
-            <state_interface name="position"/>
-        </joint>
-
         <joint name="left_wheel_joint">
-            <command_interface name="velocity"/>
+            <command_interface name="velocity">
+                <param name="min">-10</param>
+                <param name="max">10</param>
+            </command_interface>
             <state_interface name="velocity"/>
             <state_interface name="position"/>
         </joint>
-
-        <!-- Fork prismatic joint (position-controlled for lift/lower) -->
+        <joint name="right_wheel_joint">
+            <command_interface name="velocity">
+                <param name="min">-10</param>
+                <param name="max">10</param>
+            </command_interface>
+            <state_interface name="velocity"/>
+            <state_interface name="position"/>
+        </joint>
         <joint name="fork_base_joint">
             <command_interface name="position"/>
-            <command_interface name="velocity"/>
             <state_interface name="position"/>
             <state_interface name="velocity"/>
-            <state_interface name="effort"/>
         </joint>
     </ros2_control>
 
-    <!-- gz_ros2_control plugin for Gazebo Harmonic -->
     <gazebo>
         <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
             <parameters>$(find warehouse_robot_bringup)/config/forklift_controllers.yaml</parameters>

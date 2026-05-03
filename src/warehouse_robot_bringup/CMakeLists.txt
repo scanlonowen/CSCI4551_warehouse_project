@@ -7,10 +7,12 @@ find_package(ament_cmake REQUIRED)
 install(DIRECTORY
   urdf
   launch
+  worlds
   config
   rviz
   maps
   scripts
+  models
   DESTINATION share/${PROJECT_NAME}
 )
 

@@ -1,0 +1,13 @@
+material EuroPallet/ArUcoTag
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture ArUco_1.png
+      }
+    }
+  }
+}

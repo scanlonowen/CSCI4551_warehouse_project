@@ -1,13 +1,3 @@
-"""
-Launch file: Warehouse + Forklift simulation.
-Starts:
-  1. Gazebo Harmonic with the no-roof warehouse world
-  2. Robot state publisher (URDF -> TF)
-  3. Spawns the forklift model into the warehouse
-  4. ros_gz_bridge for clock + sensors
-  5. ros2_control controllers (diff drive + fork + joint state broadcaster)
-"""
-
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -15,27 +5,32 @@ from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
     ExecuteProcess,
-    RegisterEventHandler,
     TimerAction,
 )
-from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 
-
 def generate_launch_description():
 
     # Package paths
     bringup_pkg = get_package_share_directory('warehouse_robot_bringup')
-    warehouse_pkg = get_package_share_directory('aws_robomaker_small_warehouse_world')
 
+    # --- PORTABILITY FIX FOR THE GROUP ---
+    models_path = os.path.join(get_package_share_directory('warehouse_robot_bringup'), 'models')
+
+    if 'GZ_SIM_RESOURCE_PATH' in os.environ:
+        os.environ['GZ_SIM_RESOURCE_PATH'] += os.pathsep + models_path
+    else:
+        os.environ['GZ_SIM_RESOURCE_PATH'] = models_path
+    # -------------------------------------
+
+    # # World file
+    # world_file = 'empty.sdf'
     # World file
-    world_file = os.path.join(
-        warehouse_pkg, 'worlds', 'no_roof_small_warehouse', 'no_roof_small_warehouse.world'
-    )
-
+    world_file = os.path.join(bringup_pkg, 'worlds', 'warehouse_test.sdf')
+    
     # URDF via xacro
     urdf_file = os.path.join(bringup_pkg, 'urdf', 'forklift.urdf.xacro')
     robot_description = ParameterValue(
@@ -43,15 +38,14 @@ def generate_launch_description():
         value_type=str,
     )
 
-    # Controller config
-    controller_config = os.path.join(bringup_pkg, 'config', 'forklift_controllers.yaml')
+    # Pallet SDF Path
+    pallet_sdf_file = os.path.join(models_path, 'euro_pallet', 'euro_pallet.sdf')
 
-    # Spawn position — open aisle in the warehouse
-    # NOTE: (0,0) is blocked by WallB_01. This position is in a clear aisle.
-    spawn_x = LaunchConfiguration('spawn_x', default='-1.5')
-    spawn_y = LaunchConfiguration('spawn_y', default='-5.0')
-    spawn_z = LaunchConfiguration('spawn_z', default='0.1')
-    spawn_yaw = LaunchConfiguration('spawn_yaw', default='1.57')
+    # Spawn position (Forklift)
+    spawn_x = LaunchConfiguration('spawn_x', default='0.0')
+    spawn_y = LaunchConfiguration('spawn_y', default='0.0')
+    spawn_z = LaunchConfiguration('spawn_z', default='0.2') # Bumped to 0.2 for safety
+    spawn_yaw = LaunchConfiguration('spawn_yaw', default='0.0')
 
     # ── 1. Gazebo Harmonic ─────────────────────────────────────────────
     gazebo = IncludeLaunchDescription(
@@ -93,18 +87,32 @@ def generate_launch_description():
         output='screen',
     )
 
+    # ── 3.5 Spawn Euro Pallet ─────────────────────────────────────────
+    spawn_pallet = Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=[
+            '-name', 'pallet_1',
+            '-file', pallet_sdf_file,
+            '-x', '2.0',  # 2 meters in front of the origin
+            '-y', '0.0',
+            '-z', '0.0', 
+        ],
+        output='screen',
+    )
+
     # ── 4. ros_gz_bridge: clock + sensors ─────────────────────────────
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-            '/lidar@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',  # Updated from /lidar
             '/camera@sensor_msgs/msg/Image[gz.msgs.Image',
             '/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/model/forklift/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
         ],
         remappings=[
-            ('/lidar', '/scan'),
             ('/camera', '/camera/image_raw'),
             ('/camera_info', '/camera/camera_info'),
         ],
@@ -112,10 +120,7 @@ def generate_launch_description():
         output='screen',
     )
 
-    # ── 5. cmd_vel relay: /cmd_vel (Twist) → /diff_cont/cmd_vel (TwistStamped)
-    # Jazzy's diff_drive_controller only accepts TwistStamped, but
-    # teleop_twist_keyboard and Nav2 publish plain Twist on /cmd_vel.
-    # This node converts between the two.
+    # ── 5. cmd_vel relay ──────────────────────────────────────────────
     cmd_vel_relay = ExecuteProcess(
         cmd=[
             'python3',
@@ -124,8 +129,7 @@ def generate_launch_description():
         output='screen',
     )
 
-    # ── 6. ros2_control: spawn controllers ────────────────────────────
-    # Joint state broadcaster (must start first)
+    # ── 6. ros2_control: spawners ─────────────────────────────────────
     joint_broad_spawner = Node(
         package='controller_manager',
         executable='spawner',
@@ -133,7 +137,6 @@ def generate_launch_description():
         output='screen',
     )
 
-    # Diff drive controller
     diff_cont_spawner = Node(
         package='controller_manager',
         executable='spawner',
@@ -141,7 +144,6 @@ def generate_launch_description():
         output='screen',
     )
 
-    # Fork position controller
     fork_ctrl_spawner = Node(
         package='controller_manager',
         executable='spawner',
@@ -149,26 +151,11 @@ def generate_launch_description():
         output='screen',
     )
 
-    # Delay controller spawning until joint_broad is up
-    delayed_diff = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_broad_spawner,
-            on_exit=[diff_cont_spawner],
-        )
-    )
-
-    delayed_fork = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_broad_spawner,
-            on_exit=[fork_ctrl_spawner],
-        )
-    )
-
     # ── Launch arguments ──────────────────────────────────────────────
-    declare_spawn_x = DeclareLaunchArgument('spawn_x', default_value='-1.5')
-    declare_spawn_y = DeclareLaunchArgument('spawn_y', default_value='-5.0')
-    declare_spawn_z = DeclareLaunchArgument('spawn_z', default_value='0.1')
-    declare_spawn_yaw = DeclareLaunchArgument('spawn_yaw', default_value='1.57')
+    declare_spawn_x = DeclareLaunchArgument('spawn_x', default_value='0.0')
+    declare_spawn_y = DeclareLaunchArgument('spawn_y', default_value='0.0')
+    declare_spawn_z = DeclareLaunchArgument('spawn_z', default_value='0.2')
+    declare_spawn_yaw = DeclareLaunchArgument('spawn_yaw', default_value='0.0')
 
     return LaunchDescription([
         declare_spawn_x,
@@ -177,12 +164,16 @@ def generate_launch_description():
         declare_spawn_yaw,
         gazebo,
         robot_state_publisher,
-        # Delay spawn slightly to let Gazebo initialize
-        TimerAction(period=4.0, actions=[spawn_robot]),
+        
+        # Spawn the robot and the pallet simultaneously after 3 seconds
+        TimerAction(period=3.0, actions=[spawn_robot, spawn_pallet]),
+        
         bridge,
         cmd_vel_relay,
-        # Controllers start after a delay
-        TimerAction(period=8.0, actions=[joint_broad_spawner]),
-        delayed_diff,
-        delayed_fork,
+
+        TimerAction(period=8.0, actions=[
+            joint_broad_spawner,
+            diff_cont_spawner,
+            fork_ctrl_spawner
+        ]),
     ])
