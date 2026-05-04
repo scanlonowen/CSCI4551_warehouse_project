@@ -12,9 +12,9 @@
 
     <gravity>0 0 -9.8</gravity>
     <physics name="default_physics" type="ode">
-      <max_step_size>0.001</max_step_size>
+      <max_step_size>0.01</max_step_size>
       <real_time_factor>1</real_time_factor>
-      <real_time_update_rate>1000</real_time_update_rate>
+      <real_time_update_rate>100</real_time_update_rate>
     </physics>
 
     <scene>
@@ -244,6 +244,13 @@
       <cast_shadows>1</cast_shadows>
       <direction>0.1 0.1 -1</direction>
     </light>
+
+        <model name="entrance_pallet">
+        <include>
+            <uri>model://aws_robomaker_warehouse_PalletJackB_01</uri>
+        </include>
+        <pose>-1.5 -3.0 0 0 0 0</pose>
+        </model>
 
     <gui fullscreen='0'>
       <camera name='user_camera'>

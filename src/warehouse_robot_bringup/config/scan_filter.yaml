@@ -1,0 +1,14 @@
+# Removes the rear angular arc where the LiDAR hits the forklift's own body.
+#
+# Measured self-hit zone: ±141° to ±180° (lift mast / chassis behind the
+# laser mount at x=1.30 m). We mask ±130° to ±180° for a 10° safety margin.
+#
+# Top-level key must match the node name set in warehouse_simulation.launch.py.
+scan_filter:
+  ros__parameters:
+    filter1:
+      name: remove_forklift_body
+      type: laser_filters/LaserScanAngularBoundsFilterInPlace
+      params:
+        lower_angle: -2.2689  # -130 deg in radians
+        upper_angle:  2.2689  #  130 deg in radians

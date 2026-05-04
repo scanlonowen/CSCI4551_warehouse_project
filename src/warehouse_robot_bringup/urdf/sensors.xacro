@@ -28,16 +28,23 @@
     </link>
 
     <joint name="laser_frame_joint" type="fixed">
+        <!-- Pallet-detection mount: low and forward.
+             Parent: chassis_bottom_link (origin sits at base_link z=0; ground is at z=-front_wheel_radius=-0.05).
+             X: 1.30 m places the laser between the lowered fork tines (gap y=-0.425..0.425) and ahead of the
+                lift_base front face at x=1.195 — so it does NOT live inside the mast/connector or chassis box.
+             Y: 0  (laterally centered between the forks).
+             Z: 0.15 m in chassis_bottom_link frame -> 0.20 m above the ground plane,
+                comfortably above the 0.076 m fork-tine tops and below the lift_body_connector top (0.505). -->
         <parent link="chassis_bottom_link"/>
         <child link="laser_frame_link"/>
-        <origin xyz="0 0 ${chassis_bottom_height + chassis_top_height + (laser_frame_length / 2)}" rpy="0 0 0" />
+        <origin xyz="1.30 0 0.15" rpy="0 0 0" />
     </joint>
 
     <!-- Gazebo Harmonic gpu_lidar sensor (publishes on gz-transport, bridged to /scan) -->
     <gazebo reference="laser_frame_link">
-        <sensor name="lidar" type="lidar">
+        <sensor name="gpu_lidar" type="gpu_lidar">
             <pose>0 0 0 0 0 0</pose>
-            <topic>/scan</topic>
+            <topic>lidar</topic>
             <update_rate>10</update_rate>
             <always_on>true</always_on>
             <visualize>true</visualize>
@@ -50,9 +57,15 @@
                         <min_angle>-3.14159</min_angle>
                         <max_angle>3.14159</max_angle>
                     </horizontal>
+                    <vertical>
+                        <samples>1</samples>
+                        <resolution>1</resolution>
+                        <min_angle>0</min_angle>
+                        <max_angle>0</max_angle>
+                    </vertical>
                 </scan>
                 <range>
-                    <min>0.3</min>
+                    <min>0.08</min>
                     <max>12.0</max>
                     <resolution>0.01</resolution>
                 </range>
@@ -78,9 +91,8 @@
     <joint name="camera_joint" type="fixed">
         <parent link="fork_base_link"/>
         <child link="camera_link"/>
-        <origin xyz="${(fork_base_length / 2) + 0.05} 0 ${fork_base_height + 0.02}" rpy="0 0.5 0"/>
+        <origin xyz="${fork_base_length / 2} 0 ${fork_base_height + 0.02}" rpy="0 0 0"/>
     </joint>
-    
 
     <!-- Optical frame (standard ROS camera convention: Z-forward, X-right, Y-down) -->
     <link name="camera_link_optical"></link>
@@ -99,7 +111,7 @@
             <update_rate>15</update_rate>
             <always_on>true</always_on>
             <visualize>true</visualize>
-            <gz_frame_id>camera_link</gz_frame_id>
+            <gz_frame_id>camera_link_optical</gz_frame_id>
             <camera>
                 <horizontal_fov>1.089</horizontal_fov>
                 <image>

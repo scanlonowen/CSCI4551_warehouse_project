@@ -1,0 +1,124 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <!--
+    EUR-style wooden pallet sized to fit the project's forklift.
+    Forklift fork geometry (from forklift.urdf.xacro):
+      - fork_separation = 0.850 (center-to-center)
+      - fork_width      = 0.100
+      => inner fork edges at y = +-0.425, outer fork edges at y = +-0.525
+      => fork tip top z ~= 0.091 m at zero lift
+
+    Pallet local axes:
+      X = perpendicular to fork entry (1.30 m wide so outer stringers
+          live OUTSIDE the fork outer edges, letting the forks slide in)
+      Y = fork-entry axis (1.00 m deep)
+      Z = up
+
+    Stringers run along Y so the forks slide along their length.
+    Three stringers at X = +-0.60, 0:
+      - Outer:  X = +-0.60, occupy X = +-0.55 to +-0.65 (just outside forks)
+      - Middle: X = 0, occupies X = -0.05 to +0.05 (between forks)
+      - Channels for forks: -0.55..-0.05 and +0.05..+0.55 (0.50 m wide each;
+        forks are 0.10 m wide so plenty of slack)
+
+    Stringer height 0.10 m gives the forks (top z ~= 0.091 at rest) clean
+    clearance under the deck (deck bottom at z = 0.10).
+  -->
+  <model name="warehouse_pallet">
+    <static>true</static>
+    <link name="link">
+      <inertial>
+        <mass>25</mass>
+        <inertia>
+          <ixx>3.5</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>2.5</iyy><iyz>0</iyz>
+          <izz>5.5</izz>
+        </inertia>
+      </inertial>
+
+      <!-- ===================== Stringers (along Y) ===================== -->
+      <visual name="stringer_left">
+        <pose>-0.60 0 0.05 0 0 0</pose>
+        <geometry><box><size>0.10 1.00 0.10</size></box></geometry>
+        <material><ambient>0.45 0.30 0.18 1</ambient><diffuse>0.55 0.36 0.22 1</diffuse></material>
+      </visual>
+      <collision name="stringer_left_c">
+        <pose>-0.60 0 0.05 0 0 0</pose>
+        <geometry><box><size>0.10 1.00 0.10</size></box></geometry>
+      </collision>
+
+      <visual name="stringer_mid">
+        <pose>0 0 0.05 0 0 0</pose>
+        <geometry><box><size>0.10 1.00 0.10</size></box></geometry>
+        <material><ambient>0.45 0.30 0.18 1</ambient><diffuse>0.55 0.36 0.22 1</diffuse></material>
+      </visual>
+      <collision name="stringer_mid_c">
+        <pose>0 0 0.05 0 0 0</pose>
+        <geometry><box><size>0.10 1.00 0.10</size></box></geometry>
+      </collision>
+
+      <visual name="stringer_right">
+        <pose>0.60 0 0.05 0 0 0</pose>
+        <geometry><box><size>0.10 1.00 0.10</size></box></geometry>
+        <material><ambient>0.45 0.30 0.18 1</ambient><diffuse>0.55 0.36 0.22 1</diffuse></material>
+      </visual>
+      <collision name="stringer_right_c">
+        <pose>0.60 0 0.05 0 0 0</pose>
+        <geometry><box><size>0.10 1.00 0.10</size></box></geometry>
+      </collision>
+
+      <!-- ===================== Top deck planks (along X) ===================== -->
+      <!-- 5 planks, each 1.30 m wide along X, 0.16 m deep along Y, 0.025 m thick.
+           Centered at z = 0.1125 (deck bottom 0.10, top 0.125). -->
+      <visual name="deck_1">
+        <pose>0 -0.42 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+        <material><ambient>0.55 0.38 0.22 1</ambient><diffuse>0.70 0.48 0.28 1</diffuse></material>
+      </visual>
+      <collision name="deck_1_c">
+        <pose>0 -0.42 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+      </collision>
+
+      <visual name="deck_2">
+        <pose>0 -0.21 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+        <material><ambient>0.55 0.38 0.22 1</ambient><diffuse>0.70 0.48 0.28 1</diffuse></material>
+      </visual>
+      <collision name="deck_2_c">
+        <pose>0 -0.21 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+      </collision>
+
+      <visual name="deck_3">
+        <pose>0 0 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+        <material><ambient>0.55 0.38 0.22 1</ambient><diffuse>0.70 0.48 0.28 1</diffuse></material>
+      </visual>
+      <collision name="deck_3_c">
+        <pose>0 0 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+      </collision>
+
+      <visual name="deck_4">
+        <pose>0 0.21 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+        <material><ambient>0.55 0.38 0.22 1</ambient><diffuse>0.70 0.48 0.28 1</diffuse></material>
+      </visual>
+      <collision name="deck_4_c">
+        <pose>0 0.21 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+      </collision>
+
+      <visual name="deck_5">
+        <pose>0 0.42 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+        <material><ambient>0.55 0.38 0.22 1</ambient><diffuse>0.70 0.48 0.28 1</diffuse></material>
+      </visual>
+      <collision name="deck_5_c">
+        <pose>0 0.42 0.1125 0 0 0</pose>
+        <geometry><box><size>1.30 0.16 0.025</size></box></geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

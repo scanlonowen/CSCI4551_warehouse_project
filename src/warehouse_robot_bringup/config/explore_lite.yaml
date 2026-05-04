@@ -1,0 +1,39 @@
+# explore_lite parameters for the warehouse forklift.
+# Defaults overridden:
+#   robot_base_frame: base_footprint  (matches forklift URDF and slam_toolbox)
+#   costmap_topic:    /global_costmap/costmap
+#                                     (Nav2's global costmap, which is
+#                                      configured rolling_window 60x60 in
+#                                      nav2_params_exploration.yaml so it
+#                                      always encloses the robot. Subscribing
+#                                      directly to slam_toolbox's /map fails
+#                                      with "Robot out of costmap bounds"
+#                                      because (a) the TRANSIENT_LOCAL /map
+#                                      publisher does not deliver stored
+#                                      messages to the VOLATILE subscriber
+#                                      explore_lite uses under Cyclone DDS,
+#                                      and (b) the first /map is too small
+#                                      to cover the robot pose.)
+#   return_to_init:   false           (we don't need the robot to drive back;
+#                                      the explore.launch.py save-on-complete
+#                                      hook fires as soon as no frontiers
+#                                      remain)
+#   min_frontier_size: 0.5            (frontiers smaller than 0.5 m are
+#                                      ignored — keeps explorer from chasing
+#                                      tiny gaps between racks)
+#   progress_timeout: 45.0            (the forklift is slow; give Nav2 longer
+#                                      before blacklisting a frontier)
+explore_node:
+  ros__parameters:
+    robot_base_frame: base_footprint
+    costmap_topic: /global_costmap/costmap
+    costmap_updates_topic: /global_costmap/costmap_updates
+    visualize: true
+    planner_frequency: 0.33
+    progress_timeout: 60.0
+    potential_scale: 1.0
+    orientation_scale: 0.0
+    gain_scale: 2.0
+    transform_tolerance: 0.5
+    min_frontier_size: 0.75
+    return_to_init: false

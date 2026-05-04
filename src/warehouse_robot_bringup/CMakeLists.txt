@@ -7,12 +7,10 @@ find_package(ament_cmake REQUIRED)
 install(DIRECTORY
   urdf
   launch
-  worlds
   config
   rviz
   maps
   scripts
-  models
   DESTINATION share/${PROJECT_NAME}
 )
 
@@ -25,6 +23,7 @@ install(PROGRAMS
 # Install ros2-runnable scripts to lib/ so `ros2 run <pkg> <script>.py` works.
 install(PROGRAMS
   scripts/waypoint_follower.py
+  scripts/exploration_map_saver.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

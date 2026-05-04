@@ -9,13 +9,16 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <!-- Robot model -->
   <depend>xacro</depend>
   <depend>robot_state_publisher</depend>
   <depend>joint_state_publisher</depend>
 
+  <!-- Gazebo Harmonic -->
   <depend>ros_gz_sim</depend>
   <depend>ros_gz_bridge</depend>
 
+  <!-- ros2_control -->
   <depend>gz_ros2_control</depend>
   <depend>ros2_control</depend>
   <depend>ros2_controllers</depend>
@@ -24,6 +27,7 @@
   <depend>position_controllers</depend>
   <depend>controller_manager</depend>
 
+  <!-- Navigation -->
   <depend>navigation2</depend>
   <depend>nav2_bringup</depend>
   <depend>slam_toolbox</depend>
@@ -31,11 +35,14 @@
   <exec_depend>teleop_twist_keyboard</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
 
+  <!-- Stage 5.5 frontier exploration -->
+  <exec_depend>explore_lite</exec_depend>
+  <exec_depend>explore_lite_msgs</exec_depend>
+
+  <!-- Warehouse world -->
   <depend>aws_robomaker_small_warehouse_world</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
-    <gazebo_ros gazebo_model_path="${prefix}/models"/>
-    <gz_sim_resource_path>${prefix}/models:${prefix}/worlds</gz_sim_resource_path>
   </export>
 </package>
