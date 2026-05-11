@@ -16,7 +16,7 @@ diff_cont:
   ros__parameters:
     publish_rate: 50.0
 
-    base_frame_id: base_link
+    base_frame_id: drive_base_link
     odom_frame_id: odom
 
     left_wheel_names: ["left_wheel_joint"]
@@ -31,11 +31,11 @@ diff_cont:
     open_loop: false
     position_feedback: true
     use_stamped_vel: false
-    enable_odom_tf: true
+    enable_odom_tf: false
 
     publish_odom: true
-    publish_odom_tf: true
-    publish_wheel_tf: true
+    publish_odom_tf: false
+    publish_wheel_tf: false
 
     pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
     twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]

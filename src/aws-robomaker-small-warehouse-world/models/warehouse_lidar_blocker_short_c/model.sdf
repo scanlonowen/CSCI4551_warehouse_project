@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="warehouse_lidar_blocker_short_c">
+    <static>true</static>
+    <link name="link">
+      <collision name="x_min_lidar_rail_collision">
+        <pose>-0.525 0 0.25 0 0 0</pose>
+        <geometry><box><size>0.05 2.80 0.50</size></box></geometry>
+      </collision>
+      <collision name="x_max_lidar_rail_collision">
+        <pose>0.525 0 0.25 0 0 0</pose>
+        <geometry><box><size>0.05 2.80 0.50</size></box></geometry>
+      </collision>
+      <collision name="y_min_lidar_rail_collision">
+        <pose>0 -1.40 0.25 0 0 0</pose>
+        <geometry><box><size>1.05 0.05 0.50</size></box></geometry>
+      </collision>
+      <collision name="y_max_lidar_rail_collision">
+        <pose>0 1.40 0.25 0 0 0</pose>
+        <geometry><box><size>1.05 0.05 0.50</size></box></geometry>
+      </collision>
+      <collision name="east_marker_collision">
+        <pose>0.70 0.02 0.25 0 0 0</pose>
+        <geometry><box><size>0.30 0.96 0.50</size></box></geometry>
+      </collision>
+      <collision name="west_marker_collision">
+        <pose>-0.68 1.02 0.25 0 0 0</pose>
+        <geometry><box><size>0.26 0.32 0.50</size></box></geometry>
+      </collision>
+      <collision name="south_marker_collision">
+        <pose>0.24 -1.56 0.25 0 0 0</pose>
+        <geometry><box><size>0.46 0.20 0.50</size></box></geometry>
+      </collision>
+      <visual name="x_min_lidar_rail">
+        <pose>-0.525 0 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry><box><size>0.05 2.80 0.50</size></box></geometry>
+        <material><ambient>0.03 0.03 0.03 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="x_max_lidar_rail">
+        <pose>0.525 0 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry><box><size>0.05 2.80 0.50</size></box></geometry>
+        <material><ambient>0.03 0.03 0.03 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="y_min_lidar_rail">
+        <pose>0 -1.40 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry><box><size>1.05 0.05 0.50</size></box></geometry>
+        <material><ambient>0.03 0.03 0.03 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="y_max_lidar_rail">
+        <pose>0 1.40 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry><box><size>1.05 0.05 0.50</size></box></geometry>
+        <material><ambient>0.03 0.03 0.03 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="east_marker">
+        <pose>0.70 0.02 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry><box><size>0.30 0.96 0.50</size></box></geometry>
+        <material><ambient>0.03 0.03 0.03 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="west_marker">
+        <pose>-0.68 1.02 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry><box><size>0.26 0.32 0.50</size></box></geometry>
+        <material><ambient>0.03 0.03 0.03 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="south_marker">
+        <pose>0.24 -1.56 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry><box><size>0.46 0.20 0.50</size></box></geometry>
+        <material><ambient>0.03 0.03 0.03 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+    </link>
+  </model>
+</sdf>

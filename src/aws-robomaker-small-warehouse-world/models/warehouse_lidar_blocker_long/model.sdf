@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="warehouse_lidar_blocker_long">
+    <static>true</static>
+    <link name="link">
+      <!-- Use shelf-outline rails plus a few exterior signatures so long racks
+           stop looking like featureless bars, without placing fake obstacles
+           out in the open floor. -->
+      <collision name="x_min_lidar_rail_collision">
+        <pose>-1.15 0 0.25 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.05 18.30 0.50</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="x_max_lidar_rail_collision">
+        <pose>1.15 0 0.25 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.05 18.30 0.50</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="y_min_lidar_rail_collision">
+        <pose>0 -9.15 0.25 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.30 0.05 0.50</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="y_max_lidar_rail_collision">
+        <pose>0 9.15 0.25 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.30 0.05 0.50</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="west_marker_low_collision">
+        <pose>-1.34 -6.20 0.25 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.34 0.80 0.50</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="east_marker_mid_collision">
+        <pose>1.34 1.20 0.25 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.34 1.00 0.50</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="west_marker_high_collision">
+        <pose>-1.34 6.40 0.25 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.34 0.64 0.50</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="north_marker_collision">
+        <pose>0.60 9.36 0.25 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.84 0.22 0.50</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="x_min_lidar_rail">
+        <pose>-1.15 0 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.05 18.30 0.50</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="x_max_lidar_rail">
+        <pose>1.15 0 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.05 18.30 0.50</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="y_min_lidar_rail">
+        <pose>0 -9.15 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>2.30 0.05 0.50</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="y_max_lidar_rail">
+        <pose>0 9.15 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>2.30 0.05 0.50</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="west_marker_low">
+        <pose>-1.34 -6.20 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.34 0.80 0.50</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="east_marker_mid">
+        <pose>1.34 1.20 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.34 1.00 0.50</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="west_marker_high">
+        <pose>-1.34 6.40 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.34 0.64 0.50</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+        </material>
+      </visual>
+      <visual name="north_marker">
+        <pose>0.60 9.36 0.25 0 0 0</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.84 0.22 0.50</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

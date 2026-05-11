@@ -74,6 +74,17 @@ def generate_launch_description():
     nav2_params = os.path.join(bringup_pkg, 'config', 'nav2_params_exploration.yaml')
     explore_params = os.path.join(bringup_pkg, 'config', 'explore_lite.yaml')
 
+    # 0) Preflight: kill any stragglers from a previous run. launch_ros's
+    # Shutdown doesn't reliably cascade to all ExecuteProcess children
+    # (gz sim, scan_filter, twist_to_stamped) or to nav2 lifecycle nodes,
+    # and leaked parameter_bridge processes each republish /clock --
+    # multiple /clock streams cause TF buffers to thrash with "jump back
+    # in time" warnings and the costmap drops every scan.
+    cleanup = ExecuteProcess(
+        cmd=[os.path.join(bringup_pkg, 'scripts', 'cleanup_stale_procs.sh')],
+        output='screen',
+    )
+
     map_basename = LaunchConfiguration(
         'map_basename', default=_default_map_basename(),
     )
@@ -127,36 +138,37 @@ def generate_launch_description():
     # before nav2's costmaps come up.
     nav2_delayed = TimerAction(period=8.0, actions=[nav2])
 
-    # 5a-pre) Spin the robot 360° in place at t=13s to build the initial SLAM
-    # map before explore_lite starts.  Without this, the robot is stationary
-    # and SLAM's minimum_travel_distance stops it from processing more than
-    # one scan, leaving explore_lite with almost no map to find frontiers in.
-    # One full rotation (~6.3 s at 1 rad/s) covers all angles, then the robot
-    # stops.  explore_lite is delayed to t=28s to start after the spin.
-    # Slow rotation (~0.4 rad/s) over ~16 s = one full ~6.4 rad rotation.
-    # Slow enough that SLAM and the obstacle_layer can keep up between scans.
+    # 5a-pre) Spin the robot 360° in place to build an initial SLAM map
+    # before explore_lite starts. Without this, explore_lite's first
+    # frontier-search has only the forward arc visible and tends to pick a
+    # frontier behind the robot, forcing an immediate 180°.
+    # 0.5 rad/s for ~13 s = one ~6.5 rad rotation. With the wider
+    # /scan_slam topic and a lower heading threshold in slam_toolbox,
+    # this produces a denser seed map before frontier exploration begins.
     seed_spin = ExecuteProcess(
         cmd=[
-            'ros2', 'topic', 'pub', '--rate', '10', '--times', '160',
+            'ros2', 'topic', 'pub', '--rate', '10', '--times', '130',
             '/cmd_vel', 'geometry_msgs/msg/Twist',
-            '{linear: {x: 0.0}, angular: {z: 0.4}}',
+            '{linear: {x: 0.0}, angular: {z: 0.5}}',
         ],
         output='screen',
     )
-    seed_spin_delayed = TimerAction(period=13.0, actions=[seed_spin])
+    seed_spin_delayed = TimerAction(period=15.0, actions=[seed_spin])
 
     # 5a) Lift the forks before exploration begins. The fork backing plate
-    # (1.05 m wide, mounted 7 cm behind the LiDAR at z=0.15 m) sits inside
-    # the LiDAR scan plane at the default joint position (0), creating a
-    # fake wall in the costmap. Raising to 0.3 m puts the entire backing
-    # plate and tines above z=0.254 m, clearing the scan plane entirely.
-    # Runs at t=12s — after the fork_position_controller is active (t≈8s).
+    # (fork_base_link: 1.05 m wide, 1.22 m tall) sits in the LiDAR scan
+    # plane (z=0.95 m above ground) at joint values below ~0.946 m.
+    # Raising to 1.1 m puts the backing plate bottom at z=1.054 m, 0.10 m
+    # above the scan plane, so it no longer generates self-hits that
+    # contaminate the costmap and SLAM map.
+    # Runs at t=12s — after fork_position_controller is active (t≈8s)
+    # and before the seed_spin at t=15s.
     lift_forks = ExecuteProcess(
         cmd=[
             'ros2', 'topic', 'pub', '--once',
             '/fork_position_controller/commands',
             'std_msgs/msg/Float64MultiArray',
-            '{data: [0.3]}',
+            '{data: [1.1]}',
         ],
         output='screen',
     )
@@ -175,7 +187,10 @@ def generate_launch_description():
         respawn=True,
         respawn_delay=5.0,
     )
-    explore_delayed = TimerAction(period=35.0, actions=[explore_node])
+    # Start explore_lite right after the seed spin completes (~t=28s).
+    # Earlier is fine because the global_costmap is rolling-window 60×60 m
+    # and is centered on the robot from the moment Nav2 is up at t=8s.
+    explore_delayed = TimerAction(period=30.0, actions=[explore_node])
 
     # 6) The save-on-complete hook. shutdown_on_complete is the inverse of
     # the keep_alive flag.
@@ -203,6 +218,25 @@ def generate_launch_description():
         )
     )
 
+    # Gate the rest of the stack on cleanup exiting, so the preflight's
+    # pkill calls can't race the new processes being started.
+    after_cleanup = RegisterEventHandler(
+        OnProcessExit(
+            target_action=cleanup,
+            on_exit=[
+                sim,
+                slam,
+                rviz_inc,
+                nav2_delayed,
+                seed_spin_delayed,
+                lift_forks_delayed,
+                explore_delayed,
+                map_saver,
+                on_saver_exit,
+            ],
+        )
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument(
             'map_basename', default_value=_default_map_basename(),
@@ -222,13 +256,6 @@ def generate_launch_description():
             'rviz', default_value='true',
             description='Launch RViz with the forklift config',
         ),
-        sim,
-        slam,
-        rviz_inc,
-        nav2_delayed,
-        seed_spin_delayed,
-        lift_forks_delayed,
-        explore_delayed,
-        map_saver,
-        on_saver_exit,
+        cleanup,
+        after_cleanup,
     ])

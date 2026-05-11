@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'pallet_handler_node = warehouse_pallet_handler.pallet_handler_node:main',
+            'pallet_follower = warehouse_pallet_handler.pallet_follower_node:main',
         ],
     },
 )

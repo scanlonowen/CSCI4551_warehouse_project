@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/owen-scanlon/warehouse_ws/install/multirobot_map_merge/include/**",
+        "/home/owen-scanlon/warehouse_ws/install/explore_lite/include/**",
+        "/home/owen-scanlon/warehouse_ws/install/explore_lite_msgs/include/**",
+        "/opt/ros/jazzy/include/**",
+        "/home/owen-scanlon/warehouse_ws/src/m-explore-ros2/explore/include/**",
+        "/home/owen-scanlon/warehouse_ws/src/m-explore-ros2/map_merge/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ros2",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++17"
+    }
+  ],
+  "version": 4
+}

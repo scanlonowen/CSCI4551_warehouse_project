@@ -18,22 +18,30 @@
 #                                      the explore.launch.py save-on-complete
 #                                      hook fires as soon as no frontiers
 #                                      remain)
-#   min_frontier_size: 0.5            (frontiers smaller than 0.5 m are
-#                                      ignored — keeps explorer from chasing
-#                                      tiny gaps between racks)
-#   progress_timeout: 45.0            (the forklift is slow; give Nav2 longer
-#                                      before blacklisting a frontier)
+#   min_frontier_size: 1.5            (frontiers smaller than 1.5 m are
+#                                      shelf-gap noise — keeps explorer from
+#                                      getting stuck in narrow rack gaps)
+#   progress_timeout: 20.0            (give Nav2 20 s before blacklisting a
+#                                      frontier; robot gets unstuck faster)
 explore_node:
   ros__parameters:
     robot_base_frame: base_footprint
     costmap_topic: /global_costmap/costmap
     costmap_updates_topic: /global_costmap/costmap_updates
     visualize: true
-    planner_frequency: 0.33
-    progress_timeout: 60.0
-    potential_scale: 1.0
-    orientation_scale: 0.0
-    gain_scale: 2.0
+    planner_frequency: 0.2
+    progress_timeout: 20.0
+    # m-explore-ros2's frontier cost is just
+    #   potential_scale*distance - gain_scale*size  (NO orientation term —
+    # it's declared in explore.cpp but never used in frontierCost()).
+    # Lower gain_scale (2.0 → 1.0) keeps the robot from chasing huge
+    # frontiers visible through shelving when there's open space dead
+    # ahead. Higher potential_scale would prefer nearby frontiers.
+    potential_scale: 0.5
+    gain_scale: 3.0
     transform_tolerance: 0.5
-    min_frontier_size: 0.75
+    # Frontiers smaller than 1.5 m are shelf-gap noise in this warehouse.
+    # 1.5 m filters narrow shelf-end gaps the robot can't physically navigate
+    # while still targeting open aisle mouths and far-wall boundaries.
+    min_frontier_size: 1.5
     return_to_init: false

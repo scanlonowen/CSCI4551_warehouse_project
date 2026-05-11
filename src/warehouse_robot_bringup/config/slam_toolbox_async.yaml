@@ -12,8 +12,12 @@ slam_toolbox:
     # ROS frames / topics — match the forklift URDF and diff_cont output.
     odom_frame: odom
     map_frame: map
-    base_frame: base_footprint
-    scan_topic: /scan_raw
+    # drive_base_link sits on the wheel axle midpoint, so odometry rotates
+    # about the actual differential-drive center instead of the chassis frame.
+    base_frame: drive_base_link
+    # /scan_slam keeps a wider usable arc than /scan while still masking the
+    # forklift's own mast/chassis self-hits.
+    scan_topic: /scan_slam
     use_map_saver: true
     mode: mapping
 
@@ -29,8 +33,8 @@ slam_toolbox:
     # costmap obstacle_layer to drop every pending scan ("timestamp earlier than
     # all data in transform cache"). The result is a permanently-empty costmap.
     restamp_tf: true
-    # LiDAR in sensors.xacro: range 0.3–12.0 m.
-    min_laser_range: 0.3
+    # LiDAR in sensors.xacro: range 0.08–12.0 m.
+    min_laser_range: 0.10
     max_laser_range: 12.0
     minimum_time_interval: 0.2
     transform_timeout: 0.2
@@ -41,8 +45,10 @@ slam_toolbox:
     # General Parameters
     use_scan_matching: true
     use_scan_barycenter: true
-    minimum_travel_distance: 0.1
-    minimum_travel_heading: 0.3
+    minimum_travel_distance: 0.05
+    # Lower heading threshold keeps scan matching dense during slow, manual
+    # mapping turns in tight warehouse aisles.
+    minimum_travel_heading: 0.08
     check_min_dist_and_heading_precisely: false
     scan_buffer_size: 10
     scan_buffer_maximum_scan_distance: 10.0
@@ -76,4 +82,4 @@ slam_toolbox:
     minimum_distance_penalty: 0.5
     use_response_expansion: true
     min_pass_through: 2
-    occupancy_threshold: 0.1
+    occupancy_threshold: 0.65

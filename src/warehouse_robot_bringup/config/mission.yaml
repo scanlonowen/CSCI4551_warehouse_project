@@ -1,0 +1,45 @@
+# Stage 5.6 mission parameters — all poses in the `map` frame.
+#
+# Coordinate relationship (big_warehouse, SLAM with robot spawning at
+# Gazebo world (0, −16) facing north, yaw=π/2):
+#
+#   map +X  = Gazebo world +Y  (north)
+#   map +Y  = Gazebo world −X  (west)
+#
+#   map(x, y)  ↔  Gazebo(−y,  x−16)
+#   Gazebo(wx, wy)  ↔  map(wy+16, −wx)
+#
+# VERIFY these poses in RViz after a successful exploration run before
+# running a full mission.  Use the Nav2 2D Goal tool to test each position.
+
+entrance_approach:
+  # Stop ~2 m south of entrance_pallet (Gazebo 0, −12 → map 4, 0).
+  # Robot halts here, then the visual approach phase drives it the rest.
+  x: 2.0
+  y: 0.0
+  yaw: 0.0      # face +X in map = face north = toward pallet
+
+dropoffs:
+  dropoff_north:
+    x: 29.0
+    y: 0.0
+    yaw: 0.0    # face north, forks pointing into north bay
+    description: "North bay (Gazebo ≈ 0, +13)"
+
+  dropoff_east:
+    x: 15.0
+    y: -9.0
+    yaw: -1.5708   # face east (−Y in map = +X in Gazebo), forks into east aisle
+    description: "East aisle bay (Gazebo ≈ +9, −1)"
+
+  dropoff_west:
+    x: 16.0
+    y: 9.0
+    yaw: 1.5708    # face west (+Y in map = −X in Gazebo), forks into west aisle
+    description: "West aisle bay (Gazebo ≈ −9, 0)"
+
+  dropoff_nw:
+    x: 24.0
+    y: 10.0
+    yaw: 0.0    # face north, forks into northwest bay
+    description: "Northwest bay (Gazebo ≈ −10, +8)"

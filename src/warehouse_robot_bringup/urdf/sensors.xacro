@@ -1,77 +1,130 @@
 <?xml version="1.0"?>
-<!-- Sensors for Gazebo Harmonic (gz-sim): LiDAR + RGB Camera
-     These use native Gazebo Sim sensor types and publish on gz-transport.
-     Topics are bridged to ROS2 via ros_gz_bridge in the launch file. -->
+<!-- Sensors for Gazebo Harmonic (gz-sim): multi-LiDAR ring + RGB camera.
+     The four 2D lidars are mounted at the same height and face outward:
+       - front
+       - left
+       - right
+       - rear
+     They publish separate gz topics and are merged in ROS into a single
+     virtual 360 scan for RViz / Nav2 / AMCL. -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <!-- ==================== LiDAR SENSOR ==================== -->
+    <!-- ==================== LiDAR SENSORS ==================== -->
 
-    <link name="laser_frame_link">
-        <visual>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry>
-                <cylinder radius="${laser_frame_radius}" length="${laser_frame_length}"/>
-            </geometry>
-            <material name="white">
-                <color rgba="1 1 1 1"/>
-            </material>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry>
-                <cylinder radius="${laser_frame_radius}" length="${laser_frame_length}"/>
-            </geometry>
-        </collision>
-        <xacro:inertial_cylinder mass="${laser_frame_mass}" length="${laser_frame_length}" radius="${laser_frame_radius}">
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-        </xacro:inertial_cylinder>
-    </link>
+    <xacro:property name="lidar_mount_height" value="0.15" />
+    <xacro:property name="front_lidar_x" value="1.30" />
+    <xacro:property name="side_lidar_x" value="0.15" />
+    <xacro:property name="side_lidar_y" value="${(chassis_bottom_width / 2) + 0.12}" />
+    <xacro:property name="rear_lidar_x" value="${-((chassis_bottom_length / 2) + 0.10)}" />
+    <xacro:property name="lidar_fov_half_angle" value="1.0472" />
+    <xacro:property name="lidar_samples" value="121" />
 
-    <joint name="laser_frame_joint" type="fixed">
-        <!-- Pallet-detection mount: low and forward.
-             Parent: chassis_bottom_link (origin sits at base_link z=0; ground is at z=-front_wheel_radius=-0.05).
-             X: 1.30 m places the laser between the lowered fork tines (gap y=-0.425..0.425) and ahead of the
-                lift_base front face at x=1.195 — so it does NOT live inside the mast/connector or chassis box.
-             Y: 0  (laterally centered between the forks).
-             Z: 0.15 m in chassis_bottom_link frame -> 0.20 m above the ground plane,
-                comfortably above the 0.076 m fork-tine tops and below the lift_body_connector top (0.505). -->
-        <parent link="chassis_bottom_link"/>
-        <child link="laser_frame_link"/>
-        <origin xyz="1.30 0 0.15" rpy="0 0 0" />
-    </joint>
+    <xacro:macro
+        name="planar_lidar_sensor"
+        params="link_name joint_name parent x y z yaw topic sensor_name">
+        <link name="${link_name}">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <cylinder radius="${laser_frame_radius}" length="${laser_frame_length}"/>
+                </geometry>
+                <material name="white">
+                    <color rgba="1 1 1 1"/>
+                </material>
+            </visual>
+            <xacro:inertial_cylinder
+                mass="${laser_frame_mass}"
+                length="${laser_frame_length}"
+                radius="${laser_frame_radius}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:inertial_cylinder>
+        </link>
 
-    <!-- Gazebo Harmonic gpu_lidar sensor (publishes on gz-transport, bridged to /scan) -->
-    <gazebo reference="laser_frame_link">
-        <sensor name="gpu_lidar" type="gpu_lidar">
-            <pose>0 0 0 0 0 0</pose>
-            <topic>lidar</topic>
-            <update_rate>10</update_rate>
-            <always_on>true</always_on>
-            <visualize>true</visualize>
-            <gz_frame_id>laser_frame_link</gz_frame_id>
-            <lidar>
-                <scan>
-                    <horizontal>
-                        <samples>360</samples>
-                        <resolution>1</resolution>
-                        <min_angle>-3.14159</min_angle>
-                        <max_angle>3.14159</max_angle>
-                    </horizontal>
-                    <vertical>
-                        <samples>1</samples>
-                        <resolution>1</resolution>
-                        <min_angle>0</min_angle>
-                        <max_angle>0</max_angle>
-                    </vertical>
-                </scan>
-                <range>
-                    <min>0.08</min>
-                    <max>12.0</max>
-                    <resolution>0.01</resolution>
-                </range>
-            </lidar>
-        </sensor>
-    </gazebo>
+        <joint name="${joint_name}" type="fixed">
+            <parent link="${parent}"/>
+            <child link="${link_name}"/>
+            <origin xyz="${x} ${y} ${z}" rpy="0 0 ${yaw}" />
+        </joint>
+
+        <gazebo reference="${link_name}">
+            <sensor name="${sensor_name}" type="gpu_lidar">
+                <pose>0 0 0 0 0 0</pose>
+                <topic>${topic}</topic>
+                <update_rate>10</update_rate>
+                <always_on>true</always_on>
+                <visualize>true</visualize>
+                <gz_frame_id>${link_name}</gz_frame_id>
+                <lidar>
+                    <scan>
+                        <horizontal>
+                            <samples>${lidar_samples}</samples>
+                            <resolution>1</resolution>
+                            <min_angle>-${lidar_fov_half_angle}</min_angle>
+                            <max_angle>${lidar_fov_half_angle}</max_angle>
+                        </horizontal>
+                        <vertical>
+                            <samples>1</samples>
+                            <resolution>1</resolution>
+                            <min_angle>0</min_angle>
+                            <max_angle>0</max_angle>
+                        </vertical>
+                    </scan>
+                    <range>
+                        <min>0.08</min>
+                        <max>24.0</max>
+                        <resolution>0.01</resolution>
+                    </range>
+                </lidar>
+            </sensor>
+        </gazebo>
+    </xacro:macro>
+
+    <!-- Front lidar stays at the successful low-forward mount between the forks. -->
+    <xacro:planar_lidar_sensor
+        link_name="laser_frame_link"
+        joint_name="laser_frame_joint"
+        parent="chassis_bottom_link"
+        x="${front_lidar_x}"
+        y="0"
+        z="${lidar_mount_height}"
+        yaw="0"
+        topic="lidar_front"
+        sensor_name="gpu_lidar_front"/>
+
+    <!-- Side lidars are mounted just outside the chassis and point laterally. -->
+    <xacro:planar_lidar_sensor
+        link_name="laser_left_link"
+        joint_name="laser_left_joint"
+        parent="chassis_bottom_link"
+        x="${side_lidar_x}"
+        y="${side_lidar_y}"
+        z="${lidar_mount_height}"
+        yaw="${pi / 2}"
+        topic="lidar_left"
+        sensor_name="gpu_lidar_left"/>
+
+    <xacro:planar_lidar_sensor
+        link_name="laser_right_link"
+        joint_name="laser_right_joint"
+        parent="chassis_bottom_link"
+        x="${side_lidar_x}"
+        y="-${side_lidar_y}"
+        z="${lidar_mount_height}"
+        yaw="${-pi / 2}"
+        topic="lidar_right"
+        sensor_name="gpu_lidar_right"/>
+
+    <!-- Rear lidar covers backing and aisle exit alignment. -->
+    <xacro:planar_lidar_sensor
+        link_name="laser_rear_link"
+        joint_name="laser_rear_joint"
+        parent="chassis_bottom_link"
+        x="${rear_lidar_x}"
+        y="0"
+        z="${lidar_mount_height}"
+        yaw="${pi}"
+        topic="lidar_rear"
+        sensor_name="gpu_lidar_rear"/>
 
 
     <!-- ==================== RGB CAMERA SENSOR ==================== -->

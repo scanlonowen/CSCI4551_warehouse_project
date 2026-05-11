@@ -1,0 +1,71 @@
+slam_toolbox:
+  ros__parameters:
+
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None
+
+    odom_frame: odom
+    map_frame: map
+    base_frame: drive_base_link
+    # For true 4-lidar remapping, use the merged raw scan. The merger removes
+    # robot self-returns geometrically so the saved map contains the full-ring
+    # environment rather than the front-biased filtered subset.
+    scan_topic: /scan_raw
+    use_map_saver: true
+    mode: mapping
+
+    debug_logging: false
+    throttle_scans: 1
+    transform_publish_period: 0.02
+    map_update_interval: 1.0
+    resolution: 0.05
+    restamp_tf: true
+    min_laser_range: 0.10
+    max_laser_range: 12.0
+    minimum_time_interval: 0.1
+    transform_timeout: 0.2
+    tf_buffer_duration: 30.0
+    stack_size_to_use: 40000000
+    enable_interactive_mode: true
+
+    use_scan_matching: false
+    use_scan_barycenter: true
+    minimum_travel_distance: 0.02
+    minimum_travel_heading: 0.04
+    check_min_dist_and_heading_precisely: true
+    scan_buffer_size: 10
+    scan_buffer_maximum_scan_distance: 10.0
+    link_match_minimum_response_fine: 0.15
+    link_scan_maximum_distance: 1.5
+    loop_search_maximum_distance: 3.0
+    do_loop_closing: false
+    loop_match_minimum_chain_size: 10
+    loop_match_maximum_variance_coarse: 3.0
+    loop_match_minimum_response_coarse: 0.4
+    loop_match_minimum_response_fine: 0.5
+
+    # Manual mapping in sim uses ground-truth odom, so keep scan matching
+    # close to the odometric prior and avoid large turn-time jumps.
+    correlation_search_space_dimension: 0.2
+    correlation_search_space_resolution: 0.01
+    correlation_search_space_smear_deviation: 0.05
+
+    loop_search_space_dimension: 6.0
+    loop_search_space_resolution: 0.05
+    loop_search_space_smear_deviation: 0.03
+
+    distance_variance_penalty: 2.0
+    angle_variance_penalty: 4.0
+
+    fine_search_angle_offset: 0.00349
+    coarse_search_angle_offset: 0.12
+    coarse_angle_resolution: 0.01745
+    minimum_angle_penalty: 0.95
+    minimum_distance_penalty: 0.8
+    use_response_expansion: true
+    min_pass_through: 2
+    occupancy_threshold: 0.65

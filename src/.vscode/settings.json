@@ -1,0 +1,17 @@
+{
+    "ROS2.distro": "jazzy",
+    "python.autoComplete.extraPaths": [
+        "/home/owen-scanlon/warehouse_ws/install/warehouse_task_manager/lib/python3.12/site-packages",
+        "/home/owen-scanlon/warehouse_ws/install/warehouse_perception/lib/python3.12/site-packages",
+        "/home/owen-scanlon/warehouse_ws/install/warehouse_pallet_handler/lib/python3.12/site-packages",
+        "/home/owen-scanlon/warehouse_ws/install/explore_lite_msgs/lib/python3.12/site-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/owen-scanlon/warehouse_ws/install/warehouse_task_manager/lib/python3.12/site-packages",
+        "/home/owen-scanlon/warehouse_ws/install/warehouse_perception/lib/python3.12/site-packages",
+        "/home/owen-scanlon/warehouse_ws/install/warehouse_pallet_handler/lib/python3.12/site-packages",
+        "/home/owen-scanlon/warehouse_ws/install/explore_lite_msgs/lib/python3.12/site-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ]
+}

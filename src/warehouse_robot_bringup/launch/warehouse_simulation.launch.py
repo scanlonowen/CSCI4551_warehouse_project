@@ -95,6 +95,11 @@ def generate_launch_description():
     spawn_y = LaunchConfiguration('spawn_y', default='-16.0')
     spawn_z = LaunchConfiguration('spawn_z', default='0.1')
     spawn_yaw = LaunchConfiguration('spawn_yaw', default='1.5708')
+    use_ground_truth_odom = LaunchConfiguration('use_ground_truth_odom', default='false')
+    odom_topic_arg = PythonExpression([
+        "'odom_topic:=/ground_truth/odom' if '", use_ground_truth_odom,
+        "' == 'true' else 'odom_topic:=/diff_cont/odom'"
+    ])
 
     # ── 1. Gazebo Harmonic ─────────────────────────────────────────────
     gazebo = IncludeLaunchDescription(
@@ -137,29 +142,45 @@ def generate_launch_description():
     )
 
     # ── 4. ros_gz_bridge: clock + sensors ─────────────────────────────
-    # Bridge publishes /scan_raw (full 360°).  A laser_filters node below
-    # strips the rear self-hit arc and republishes as /scan.
-    # SLAM subscribes to /scan_raw (full 360° helps loop closure).
-    # Nav2 costmap and collision_monitor subscribe to /scan (clean).
+    # Bridge publishes four directional lidar scans. A merger node combines
+    # them into /scan_raw (synthetic 360°), and the filter node below then
+    # republishes task-specific masked variants for Nav2 / SLAM / AMCL.
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-            '/lidar@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/lidar_front@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/lidar_left@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/lidar_right@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/lidar_rear@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
             '/camera@sensor_msgs/msg/Image[gz.msgs.Image',
             '/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/model/forklift/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry',
         ],
         remappings=[
-            ('/lidar', '/scan_raw'),
+            ('/lidar_front', '/scan_front_raw'),
+            ('/lidar_left', '/scan_left_raw'),
+            ('/lidar_right', '/scan_right_raw'),
+            ('/lidar_rear', '/scan_rear_raw'),
             ('/camera', '/camera/image_raw'),
             ('/camera_info', '/camera/camera_info'),
+            ('/model/forklift/odometry', '/ground_truth/odom'),
         ],
         parameters=[{'use_sim_time': True}],
         output='screen',
     )
 
-    # ── 4b. Scan filter: remove forklift self-hits from rear arc ─────
+    # ── 4b. Merge directional lidar scans into one synthetic 360 scan ─
+    scan_merger = ExecuteProcess(
+        cmd=[
+            'python3',
+            os.path.join(bringup_pkg, 'scripts', 'multi_lidar_scan_merger.py'),
+        ],
+        output='screen',
+    )
+
+    # ── 4c. Scan filter: derive task-specific scans from merged raw scan ─
     scan_filter = ExecuteProcess(
         cmd=[
             'python3',
@@ -176,6 +197,18 @@ def generate_launch_description():
         cmd=[
             'python3',
             os.path.join(bringup_pkg, 'scripts', 'twist_to_stamped.py'),
+        ],
+        output='screen',
+    )
+
+    odom_to_tf = ExecuteProcess(
+        cmd=[
+            'python3',
+            os.path.join(bringup_pkg, 'scripts', 'odom_to_tf.py'),
+            '--ros-args',
+            '-p', odom_topic_arg,
+            '-p', 'odom_frame:=odom',
+            '-p', 'base_frame:=drive_base_link',
         ],
         output='screen',
     )
@@ -225,6 +258,11 @@ def generate_launch_description():
     declare_spawn_y = DeclareLaunchArgument('spawn_y', default_value='-16.0')
     declare_spawn_z = DeclareLaunchArgument('spawn_z', default_value='0.1')
     declare_spawn_yaw = DeclareLaunchArgument('spawn_yaw', default_value='1.5708')
+    declare_use_ground_truth_odom = DeclareLaunchArgument(
+        'use_ground_truth_odom',
+        default_value='false',
+        description='Use Gazebo ground-truth odometry instead of wheel odometry for the odom TF',
+    )
 
     return LaunchDescription([
         declare_world,
@@ -232,14 +270,17 @@ def generate_launch_description():
         declare_spawn_y,
         declare_spawn_z,
         declare_spawn_yaw,
+        declare_use_ground_truth_odom,
         gz_resource_env,
         gazebo,
         robot_state_publisher,
         # Delay spawn slightly to let Gazebo initialize
         TimerAction(period=4.0, actions=[spawn_robot]),
         bridge,
+        scan_merger,
         scan_filter,
         cmd_vel_relay,
+        odom_to_tf,
         # Controllers start after a delay
         TimerAction(period=8.0, actions=[joint_broad_spawner]),
         delayed_diff,

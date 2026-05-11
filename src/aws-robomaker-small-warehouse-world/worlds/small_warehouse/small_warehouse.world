@@ -36,6 +36,12 @@
         </include>
         <pose>-5.795143 -0.956635 0 0 0 0</pose>
 	</model>
+        <model name="aws_robomaker_warehouse_ShelfF_01_001_lidar_blocker">
+        <include>
+            <uri>model://warehouse_lidar_blocker_long_b</uri>
+        </include>
+        <pose>-5.795143 -0.956635 0 0 0 0</pose>
+	</model>
 
         <model name="aws_robomaker_warehouse_WallB_01_001">
         <include>
@@ -50,12 +56,24 @@
         </include>
         <pose>4.73156 0.57943 0 0 0 0</pose>
 	</model>
+        <model name="aws_robomaker_warehouse_ShelfE_01_001_lidar_blocker">
+        <include>
+            <uri>model://warehouse_lidar_blocker_short_b</uri>
+        </include>
+        <pose>4.73156 0.57943 0 0 0 1.5708</pose>
+	</model>
 
         <model name="aws_robomaker_warehouse_ShelfE_01_002">
         <include>
             <uri>model://aws_robomaker_warehouse_ShelfE_01</uri>
         </include>
         <pose>4.73156 -4.827049 0 0 0 0</pose>
+	</model>
+        <model name="aws_robomaker_warehouse_ShelfE_01_002_lidar_blocker">
+        <include>
+            <uri>model://warehouse_lidar_blocker_short_c</uri>
+        </include>
+        <pose>4.73156 -4.827049 0 0 0 1.5708</pose>
 	</model>
         
         <model name="aws_robomaker_warehouse_ShelfE_01_003">
@@ -64,12 +82,24 @@
         </include>
         <pose>4.73156 -8.6651 0 0 0 0</pose>
 	</model>
+        <model name="aws_robomaker_warehouse_ShelfE_01_003_lidar_blocker">
+        <include>
+            <uri>model://warehouse_lidar_blocker_short</uri>
+        </include>
+        <pose>4.73156 -8.6651 0 0 0 1.5708</pose>
+	</model>
 
         <model name="aws_robomaker_warehouse_ShelfD_01_001">
         <include>
             <uri>model://aws_robomaker_warehouse_ShelfD_01</uri>
         </include>
         <pose>4.73156 -1.242668 0 0 0 0</pose>
+	</model>
+        <model name="aws_robomaker_warehouse_ShelfD_01_001_lidar_blocker">
+        <include>
+            <uri>model://warehouse_lidar_blocker_short_c</uri>
+        </include>
+        <pose>4.73156 -1.242668 0 0 0 1.5708</pose>
 	</model>
 
         <model name="aws_robomaker_warehouse_ShelfD_01_002">
@@ -78,12 +108,24 @@
         </include>
         <pose>4.73156 -3.038551 0 0 0 0</pose>
 	</model>
+        <model name="aws_robomaker_warehouse_ShelfD_01_002_lidar_blocker">
+        <include>
+            <uri>model://warehouse_lidar_blocker_short</uri>
+        </include>
+        <pose>4.73156 -3.038551 0 0 0 1.5708</pose>
+	</model>
 
         <model name="aws_robomaker_warehouse_ShelfD_01_003">
         <include>
             <uri>model://aws_robomaker_warehouse_ShelfD_01</uri>
         </include>
         <pose>4.73156 -6.750542 0 0 0 0</pose>
+	</model>
+        <model name="aws_robomaker_warehouse_ShelfD_01_003_lidar_blocker">
+        <include>
+            <uri>model://warehouse_lidar_blocker_short_b</uri>
+        </include>
+        <pose>4.73156 -6.750542 0 0 0 1.5708</pose>
 	</model>
 
         <!--model name="aws_robomaker_warehouse_DeskC_01_001">

@@ -298,37 +298,17 @@
       </link>
       <self_collide>false</self_collide>
     </model>
-    <model name='shelf_bank_1_a'>
+    <model name='aruco_marker_06'>
       <include>
-        <uri>model://aws_robomaker_warehouse_ShelfE_01</uri>
+        <uri>model://warehouse_aruco_marker_06</uri>
       </include>
-      <pose>-7 -12 0 0 0 0</pose>
-      <static>false</static>
-      <self_collide>false</self_collide>
+      <pose>-3.25 -17.72 1.25 0 0 1.5708</pose>
     </model>
-    <model name='shelf_bank_1_b'>
+    <model name='aruco_marker_07'>
       <include>
-        <uri>model://aws_robomaker_warehouse_ShelfD_01</uri>
+        <uri>model://warehouse_aruco_marker_07</uri>
       </include>
-      <pose>-3.5 -12 0 0 0 0</pose>
-      <static>false</static>
-      <self_collide>false</self_collide>
-    </model>
-    <model name='shelf_bank_1_c'>
-      <include>
-        <uri>model://aws_robomaker_warehouse_ShelfD_01</uri>
-      </include>
-      <pose>3.5 -12 0 0 0 0</pose>
-      <static>false</static>
-      <self_collide>false</self_collide>
-    </model>
-    <model name='shelf_bank_1_d'>
-      <include>
-        <uri>model://aws_robomaker_warehouse_ShelfE_01</uri>
-      </include>
-      <pose>7 -12 0 0 0 0</pose>
-      <static>false</static>
-      <self_collide>false</self_collide>
+      <pose>3.25 -17.72 1.25 0 0 1.5708</pose>
     </model>
     <model name='shelf_bank_2_a'>
       <include>
@@ -338,6 +318,18 @@
       <static>false</static>
       <self_collide>false</self_collide>
     </model>
+    <model name='shelf_bank_2_a_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short_b</uri>
+      </include>
+      <pose>-9.1134042739868164 -4 0 0 0 1.5708</pose>
+    </model>
+    <model name='aruco_marker_00'>
+      <include>
+        <uri>model://warehouse_aruco_marker_00</uri>
+      </include>
+      <pose>-9.1134042739868164 -4.72 1.25 0 0 -1.5708</pose>
+    </model>
     <model name='shelf_bank_2_b'>
       <include>
         <uri>model://aws_robomaker_warehouse_ShelfD_01</uri>
@@ -345,6 +337,18 @@
       <pose>-5.2876682281494141 -4.0644798278808594 0 0 0 0</pose>
       <static>false</static>
       <self_collide>false</self_collide>
+    </model>
+    <model name='shelf_bank_2_b_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short_c</uri>
+      </include>
+      <pose>-5.2876682281494141 -4.0644798278808594 0 0 0 1.5708</pose>
+    </model>
+    <model name='aruco_marker_01'>
+      <include>
+        <uri>model://warehouse_aruco_marker_01</uri>
+      </include>
+      <pose>-5.2876682281494141 -4.7844798278808594 1.25 0 0 -1.5708</pose>
     </model>
     <model name='shelf_bank_2_c'>
       <include>
@@ -354,6 +358,18 @@
       <static>false</static>
       <self_collide>false</self_collide>
     </model>
+    <model name='shelf_bank_2_c_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short</uri>
+      </include>
+      <pose>2.3689959049224854 -4 0 0 0 1.5708</pose>
+    </model>
+    <model name='aruco_marker_02'>
+      <include>
+        <uri>model://warehouse_aruco_marker_02</uri>
+      </include>
+      <pose>2.3689959049224854 -4.72 1.25 0 0 -1.5708</pose>
+    </model>
     <model name='shelf_bank_2_d'>
       <include>
         <uri>model://aws_robomaker_warehouse_ShelfE_01</uri>
@@ -361,6 +377,18 @@
       <pose>6.2993936538696289 -4 0 0 0 0</pose>
       <static>false</static>
       <self_collide>false</self_collide>
+    </model>
+    <model name='shelf_bank_2_d_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short_b</uri>
+      </include>
+      <pose>6.2993936538696289 -4 0 0 0 1.5708</pose>
+    </model>
+    <model name='aruco_marker_03'>
+      <include>
+        <uri>model://warehouse_aruco_marker_03</uri>
+      </include>
+      <pose>6.2993936538696289 -4.72 1.25 0 0 -1.5708</pose>
     </model>
     <model name='shelf_bank_3_a'>
       <include>
@@ -370,6 +398,12 @@
       <static>false</static>
       <self_collide>false</self_collide>
     </model>
+    <model name='shelf_bank_3_a_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_long_b</uri>
+      </include>
+      <pose>-12.286680221557617 4 0 0 0 0</pose>
+    </model>
     <model name='shelf_bank_3_b'>
       <include>
         <uri>model://aws_robomaker_warehouse_ShelfD_01</uri>
@@ -377,6 +411,12 @@
       <pose>-1.4750902652740479 4 0 0 0 0</pose>
       <static>false</static>
       <self_collide>false</self_collide>
+    </model>
+    <model name='shelf_bank_3_b_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short_c</uri>
+      </include>
+      <pose>-1.4750902652740479 4 0 0 0 1.5708</pose>
     </model>
     <model name='shelf_bank_3_c'>
       <include>
@@ -386,6 +426,12 @@
       <static>false</static>
       <self_collide>false</self_collide>
     </model>
+    <model name='shelf_bank_3_c_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short</uri>
+      </include>
+      <pose>2.4397945404052734 4 0 0 0 1.5708</pose>
+    </model>
     <model name='shelf_bank_3_d'>
       <include>
         <uri>model://aws_robomaker_warehouse_ShelfE_01</uri>
@@ -393,6 +439,12 @@
       <pose>6.4202580451965332 4 0 0 0 0</pose>
       <static>false</static>
       <self_collide>false</self_collide>
+    </model>
+    <model name='shelf_bank_3_d_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short_b</uri>
+      </include>
+      <pose>6.4202580451965332 4 0 0 0 1.5708</pose>
     </model>
     <model name='shelf_bank_4_a'>
       <include>
@@ -402,6 +454,12 @@
       <static>false</static>
       <self_collide>false</self_collide>
     </model>
+    <model name='shelf_bank_4_a_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short_c</uri>
+      </include>
+      <pose>-9.0655641555786133 11.693599700927734 0 0 0 1.5708</pose>
+    </model>
     <model name='shelf_bank_4_b'>
       <include>
         <uri>model://aws_robomaker_warehouse_ShelfD_01</uri>
@@ -409,6 +467,18 @@
       <pose>-4.9744858741760254 12 0 0 0 0</pose>
       <static>false</static>
       <self_collide>false</self_collide>
+    </model>
+    <model name='shelf_bank_4_b_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short</uri>
+      </include>
+      <pose>-4.9744858741760254 12 0 0 0 1.5708</pose>
+    </model>
+    <model name='aruco_marker_04'>
+      <include>
+        <uri>model://warehouse_aruco_marker_04</uri>
+      </include>
+      <pose>-4.9744858741760254 12.72 1.25 0 0 1.5708</pose>
     </model>
     <model name='shelf_bank_4_c'>
       <include>
@@ -418,6 +488,18 @@
       <static>false</static>
       <self_collide>false</self_collide>
     </model>
+    <model name='shelf_bank_4_c_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_short_b</uri>
+      </include>
+      <pose>5.2562918663024902 12 0 0 0 1.5708</pose>
+    </model>
+    <model name='aruco_marker_05'>
+      <include>
+        <uri>model://warehouse_aruco_marker_05</uri>
+      </include>
+      <pose>5.2562918663024902 12.72 1.25 0 0 1.5708</pose>
+    </model>
     <model name='shelf_bank_4_d'>
       <include>
         <uri>model://aws_robomaker_warehouse_ShelfF_01</uri>
@@ -425,6 +507,12 @@
       <pose>9.5003032684326172 3.7647700309753418 0 0 0 0</pose>
       <static>false</static>
       <self_collide>false</self_collide>
+    </model>
+    <model name='shelf_bank_4_d_lidar_blocker'>
+      <include>
+        <uri>model://warehouse_lidar_blocker_long</uri>
+      </include>
+      <pose>9.5003032684326172 3.7647700309753418 0 0 0 0</pose>
     </model>
     <model name='aws_robomaker_warehouse_Lamp_01_001'>
       <include>
@@ -510,9 +598,5 @@
         <falloff>0</falloff>
       </spot>
     </light>
-    <!-- Pallet temporarily removed while autonomous exploration is being
-         debugged (2026-05-03).  Pallet was at (0, -10) blocking the
-         entrance bay.  Restore the <model name="entrance_pallet"> block
-         from git once exploration is reliable. -->
   </world>
 </sdf>

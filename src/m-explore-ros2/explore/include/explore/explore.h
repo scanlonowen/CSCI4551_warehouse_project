@@ -97,6 +97,12 @@ private:
       const std::vector<frontier_exploration::Frontier>& frontiers);
 
   bool goalOnBlacklist(const geometry_msgs::msg::Point& goal);
+  geometry_msgs::msg::Point selectGoalPoint(
+      const frontier_exploration::Frontier& frontier,
+      const geometry_msgs::msg::Point& robot_position);
+  void sendNavigationGoal(const geometry_msgs::msg::Point& target_position,
+                          double target_cost,
+                          const geometry_msgs::msg::Point& robot_position);
 
   NavigationGoalHandle::SharedPtr navigation_goal_handle_;
   // void
@@ -129,9 +135,13 @@ private:
 
   std::vector<geometry_msgs::msg::Point> frontier_blacklist_;
   geometry_msgs::msg::Point prev_goal_;
+  geometry_msgs::msg::Point active_goal_;
   double prev_distance_;
+  double active_goal_cost_;
   rclcpp::Time last_progress_;
+  rclcpp::Time active_goal_sent_;
   size_t last_markers_count_;
+  bool goal_active_;
 
   geometry_msgs::msg::Pose initial_pose_;
   void returnToInitialPose(void);
@@ -140,8 +150,15 @@ private:
   double planner_frequency_;
   double potential_scale_, orientation_scale_, gain_scale_;
   double progress_timeout_;
+  double goal_reached_radius_;
+  double goal_switch_min_distance_;
+  double goal_switch_min_cost_improvement_;
+  double goal_hold_time_;
+  double progress_distance_epsilon_;
+  double frontier_approach_search_radius_;
   bool visualize_;
   bool return_to_init_;
+  bool use_frontier_middle_;
   std::string robot_base_frame_;
   bool resuming_ = false;
 };

@@ -45,6 +45,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 
 from cv_bridge import CvBridge
+from std_msgs.msg import Float32
 
 from sensor_msgs.msg import Image, CameraInfo, LaserScan
 from geometry_msgs.msg import PoseStamped, Quaternion
@@ -64,14 +65,14 @@ import tf2_geometry_msgs  # noqa: F401
 #   S ~ 60-220  (mid-saturation; brown is less saturated than orange)
 #   V ~ 40-200  (allow shadow / specular variation)
 # Re-tune against live sim frames if detection misses or false-positives.
-HSV_LOWER = np.array([8, 60, 40], dtype=np.uint8)
-HSV_UPPER = np.array([25, 220, 200], dtype=np.uint8)
+HSV_LOWER = np.array([10, 20, 100], dtype=np.uint8)
+HSV_UPPER = np.array([30, 180, 255], dtype=np.uint8)
 
 # Contour filters
-MIN_CONTOUR_AREA_PX = 800        # reject specks
-MAX_CONTOUR_AREA_PX = 200_000    # reject "the whole image is yellow"
-MIN_ASPECT_RATIO = 1.1           # pallet is wider than tall
-MAX_ASPECT_RATIO = 6.0
+MIN_CONTOUR_AREA_PX = 50        # reject specks
+MAX_CONTOUR_AREA_PX = 500_000    # reject "the whole image is yellow"
+MIN_ASPECT_RATIO = 0.1         # pallet is wider than tall
+MAX_ASPECT_RATIO = 50.0
 
 # Detection stability
 STABLE_FRAMES_REQUIRED = 3       # require N consecutive detections before publishing
@@ -142,6 +143,13 @@ class PalletDetector(Node):
 
         self.get_logger().info('pallet_detector started')
 
+        self.offset_pub = self.create_publisher(Float32, '/pallet_offset', 10)
+
+        self.mask_pub = self.create_publisher(Image, '/pallet_mask', 10)
+
+        self.height_pub = self.create_publisher(Float32, '/pallet_height', 10)
+
+        self.y_pub = self.create_publisher(Float32, '/pallet_y', 10)
     # ---------------- callbacks ----------------
 
     def _camera_info_cb(self, msg: CameraInfo) -> None:
@@ -160,8 +168,8 @@ class PalletDetector(Node):
     def _image_cb(self, msg: Image) -> None:
         if self.fx is None or self.cx is None:
             return  # need intrinsics first
-        if self.last_scan is None:
-            return  # need lidar for range
+        # if self.last_scan is None:
+        #     return  # need lidar for range
 
         try:
             frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -171,10 +179,23 @@ class PalletDetector(Node):
 
         candidate = self._find_best_pallet_blob(frame)
         if candidate is None:
+            self.get_logger().info('No pallet blob found', throttle_duration_sec=1.0)
             self._consecutive_detections = 0
             return
+        else:
+            self.get_logger().info(f'Pallet candidate: {candidate}', throttle_duration_sec=1.0)
 
         cx_px, _cy_px, _w, _h = candidate
+        offset = Float32()
+        offset.data = float((cx_px - self.cx) / self.cx)
+        self.offset_pub.publish(offset)
+        height_msg = Float32()
+        height_msg.data = float(_h)
+        self.height_pub.publish(height_msg)
+        y_msg = Float32()
+        y_msg.data = float(_cy_px)
+        self.y_pub.publish(y_msg)
+
         self._consecutive_detections += 1
         if self._consecutive_detections < STABLE_FRAMES_REQUIRED:
             return
@@ -237,6 +258,8 @@ class PalletDetector(Node):
         """Return (cx, cy, w, h) of the best pallet candidate, or None."""
         hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, HSV_LOWER, HSV_UPPER)
+        mask_msg = self.bridge.cv2_to_imgmsg(mask, encoding='mono8')
+        self.mask_pub.publish(mask_msg)
 
         # Light morphological cleanup.
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
@@ -266,6 +289,8 @@ class PalletDetector(Node):
 
     def _range_at_bearing(self, scan: LaserScan, bearing: float) -> Optional[float]:
         """Pick the LaserScan range at the closest beam to `bearing` (rad)."""
+        if scan is None:
+            return None
         if scan.angle_increment <= 0.0 or len(scan.ranges) == 0:
             return None
         # Clamp the bearing to the scan's angular field of view.
